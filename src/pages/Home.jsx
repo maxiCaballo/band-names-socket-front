@@ -2,6 +2,7 @@ import { useContext } from 'react';
 import { BandAdd } from '../components/BandAdd';
 import { BandList } from '../components/BandList';
 import { SocketContext } from '../context/SocketContext';
+import { BandChart } from '../components/BandChart';
 
 function Home() {
 	const { online } = useContext(SocketContext);
@@ -16,6 +17,11 @@ function Home() {
 			</div>
 
 			<h1>Band Names</h1>
+			<div className='row'>
+				<div className='col'>
+					<BandChart />
+				</div>
+			</div>
 
 			<hr />
 

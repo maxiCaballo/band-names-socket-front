@@ -1,19 +1,9 @@
-import { useContext, useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
+import { useContext } from 'react';
 import { SocketContext } from '../context/SocketContext';
-import { currentBands, addVote, removeBand, updateBandNameMessage } from '../utilities/socketMessages';
+import { addVote, removeBand, updateBandNameMessage } from '../utilities/socketMessages';
 
 export const BandList = () => {
-	const [bands, setBands] = useState([]);
-	const { socket } = useContext(SocketContext);
-
-	useEffect(() => {
-		socket.on(currentBands, (bands) => {
-			setBands(bands);
-		});
-
-		return socket.off(currentBands);
-	}, [socket]);
+	const { socket, bands, setBands } = useContext(SocketContext);
 
 	function changeBandName(event, bandId) {
 		setBands((bands) =>
@@ -73,8 +63,4 @@ export const BandList = () => {
 			</table>
 		</>
 	);
-};
-
-BandList.propTypes = {
-	data: PropTypes.array.isRequired,
 };
