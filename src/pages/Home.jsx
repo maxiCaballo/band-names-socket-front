@@ -1,14 +1,7 @@
-import { useEffect, useState } from 'react';
-import { BandAdd } from './components/BandAdd';
-import { BandList } from './components/BandList';
-import io from 'socket.io-client';
-
-const connectToScoketServer = () => {
-	const socket = io.connect('http://localhost:8080', {
-		transports: ['websocket'], //Indicarle a nuestro server con que tipo de comunicacion nos vamos a comunicar
-	});
-	return socket;
-};
+import { useContext, useEffect, useState } from 'react';
+import { BandAdd } from '../components/BandAdd';
+import { BandList } from '../components/BandList';
+import { SocketContext } from '../context/SocketContext';
 
 const { currentBands, addVote, removeBand, updateBandNameMessage, createBandMessage } = {
 	currentBands: 'current-bands',
@@ -18,26 +11,9 @@ const { currentBands, addVote, removeBand, updateBandNameMessage, createBandMess
 	createBandMessage: 'create-band',
 };
 
-function App() {
-	const [socket] = useState(connectToScoketServer());
-	const [online, setOnline] = useState(false);
+function Home() {
 	const [bands, setBands] = useState([]);
-
-	useEffect(() => {
-		setOnline(socket.connected);
-	}, [socket]);
-
-	useEffect(() => {
-		socket.on('connect', () => {
-			setOnline(true);
-		});
-	}, [socket]);
-
-	useEffect(() => {
-		socket.on('disconnect', () => {
-			setOnline(false);
-		});
-	}, [socket]);
+	const { socket, online } = useContext(SocketContext);
 
 	useEffect(() => {
 		socket.on(currentBands, (bands) => {
@@ -84,4 +60,4 @@ function App() {
 	);
 }
 
-export default App;
+export default Home;
