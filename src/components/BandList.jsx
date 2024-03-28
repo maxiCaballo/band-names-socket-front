@@ -1,12 +1,19 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
+import { SocketContext } from '../context/SocketContext';
+import { currentBands, addVote, removeBand, updateBandNameMessage } from '../utilities/socketMessages';
 
-export const BandList = ({ data, vote, deleteBand, updateBandName }) => {
-	const [bands, setBands] = useState([data]);
+export const BandList = () => {
+	const [bands, setBands] = useState([]);
+	const { socket } = useContext(SocketContext);
 
 	useEffect(() => {
-		setBands(data);
-	}, [data]);
+		socket.on(currentBands, (bands) => {
+			setBands(bands);
+		});
+
+		return socket.off(currentBands);
+	}, [socket]);
 
 	function changeBandName(event, bandId) {
 		setBands((bands) =>
@@ -20,19 +27,11 @@ export const BandList = ({ data, vote, deleteBand, updateBandName }) => {
 		);
 	}
 
-	function updateName(bandId, name) {
-		const band = bands.find((band) => band.id === bandId);
-
-		if (!band) return;
-
-		updateBandName({ id: bandId, name });
-	}
-
 	const createRows = () => {
 		return bands.map((band) => (
 			<tr key={band.id}>
 				<td>
-					<button className='btn btn-primary' onClick={() => vote(band.id)}>
+					<button className='btn btn-primary' onClick={() => socket.emit(addVote, band.id)}>
 						{' '}
 						+1
 					</button>
@@ -40,7 +39,10 @@ export const BandList = ({ data, vote, deleteBand, updateBandName }) => {
 				<td>
 					<input className='form-control mb-2' value={band.name} onChange={(e) => changeBandName(e, band.id)} />
 
-					<button className='btn btn-outline-primary' onClick={() => updateName(band.id, band.name)}>
+					<button
+						className='btn btn-outline-primary'
+						onClick={() => socket.emit(updateBandNameMessage, { id: band.id, name: band.name })}
+					>
 						Change name
 					</button>
 				</td>
@@ -48,7 +50,7 @@ export const BandList = ({ data, vote, deleteBand, updateBandName }) => {
 					<h3>{band.votes}</h3>
 				</td>
 				<td>
-					<button className='btn btn-danger' onClick={() => deleteBand(band.id)}>
+					<button className='btn btn-danger' onClick={() => socket.emit(removeBand, band.id)}>
 						Delete
 					</button>
 				</td>
@@ -75,8 +77,4 @@ export const BandList = ({ data, vote, deleteBand, updateBandName }) => {
 
 BandList.propTypes = {
 	data: PropTypes.array.isRequired,
-	vote: PropTypes.func.isRequired,
-	deleteBand: PropTypes.func.isRequired,
-	updateBandName: PropTypes.func.isRequired,
-	createBand: PropTypes.func.isRequired,
 };
